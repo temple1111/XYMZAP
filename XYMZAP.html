@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbol Transfer</title>
+    <link rel="stylesheet" href="styles.css"> <!-- CSSファイルを読み込む -->
+    <script src="https://xembook.github.io/nem2-browserify/symbol-sdk-2.0.4.js"></script>
+    <script language="JavaScript">
+        NODE = 'https://ik1-432-48199.vs.sakura.ne.jp:3001';
+        sym = require("/node_modules/symbol-sdk");
+        repo = new sym.RepositoryFactoryHttp(NODE);
+        txRepo = repo.createTransactionRepository();
+        (async () => {
+            networkType = await repo.getNetworkType().toPromise();
+            generationHash = await repo.getGenerationHash().toPromise();
+            epochAdjustment = await repo.getEpochAdjustment().toPromise();
+        })();
+
+        // 送信者アカウントの秘密鍵
+        const sender = '58888895d8c39a0ef091c0f68661abc5c656b70c141b4b9bace75d4467c322c3';
+
+        // 送信数量に応じたメッセージを生成する関数
+     // 各項目のメッセージリスト
+// 各範囲のメッセージリスト
+// 各範囲のメッセージリスト
+// 各範囲のメッセージリスト
+const messagesByRange = {
+    '0-9': [
+        '今ここで諦めるな！成功への第一歩はここからだ。10回のトレーニングはまずはスタート地点。これからが本番だ。君は未来のヒーローだ！',
+        '苦しい時こそ、本当の力を発揮するチャンスだ。筋肉は辛さから生まれる。君の決意が君を次のレベルに押し上げる。諦めることは許されない。',
+        '逆境を乗り越えたとき、本当の成長が始まる。10回のトレーニングは君の内なる強さを呼び覚ます。君は今、勝者への道を歩いている。',
+        'トレーニングは戦いだ。そして、君は戦士だ。1回のトレーニングが君を強くし、次の挑戦に備える。進め、勝利は君の手の中にある。',
+        '一歩一歩、未来の勝者への階段を登っていけ！10回のトレーニングは君の物語の第一章。未来の君は今日の努力に感謝するだろう。',
+    ],
+    '10-49': [
+        '限界を突破せよ！君にはその力がある！10回を超えるトレーニングは、君の本当の可能性に近づく鍵だ。君はすでに進化し続けている。',
+        '今の苦労は明日の勝利への投資だ。10回以上のトレーニングは、君の未来の成功への投資だ。君の決意が道を開く。',
+        '強くなりたければ、諦めることは許されない。成功への道は困難だが、君はその挑戦に立ち向かう勇気を持っている。続けろ！',
+        '君の決意が未来を切り開く。10回以上のトレーニングは、君が自分の限界を突破する手助けとなる。継続は成功への秘訣だ。',
+        '成功には努力が必要だ。諦めない君が、いつかその成功の頂点に立つ。君のトレーニングは未来の物語の一部だ。',
+    ],
+    '50-99': [
+        'すごいぞ！君の筋肉は勝利の証だ。50回以上のトレーニングは、君が本当の勝者であることを示す。君は目標に向かって全力で突き進んでいる。',
+        '毎日のトレーニングが君を不屈の力に変える。50回以上のトレーニングは、君の内なる強さを開花させる。これからも前進しよう。',
+        '成功の鍵は君の手の中にある。受け取れ！50回以上のトレーニングは、君が夢を実現させるための道だ。諦めずに頑張れ！',
+        '強さは君がどれだけ続けられるかにかかっている。50回以上のトレーニングは、君の持久力を高め、さらなる挑戦に備える。逆境も君を成長させるチャンスだ。',
+        '逆境にも負けずに前進し続けましょう。50回以上のトレーニングは、君が目標に向かって不屈の意志を持つことを示す。成功はすぐそこにある！',
+    ],
+    '100+': [
+        '君は伝説だ！100回以上のトレーニングはまさに偉業だ。君の努力と決意は無限の可能性を開く。未来は君のものだ。',
+        '成功への扉は開かれている。君はその扉を押し開ける勇気があるか？100回以上のトレーニングは、君の成功への切符だ。君はすでに勝者の列に並んでいる。',
+        '強さとは、諦めずに立ち向かう力だ。君はそれを持っている。100回以上のトレーニングは、君の不屈の精神を証明する。君は成功への道を歩いている。',
+        '君のトレーニングは世界を変える力を秘めている。100回以上のトレーニングは、君が他の人々に勇気とインスピレーションを与えることを示す。継続していこう！',
+        '未来は君の手に委ねられている。力強く進め！100回以上のトレーニングは、君が成功への旅を楽しむことを意味する。君は自分の可能性を信じ、それを実現させている。',
+    ],
+    default: [
+        'がんばりましょう！トレーニングは一歩ずつの積み重ねです。',
+        '自分自身に誇りを持ち、目標に向かって前進しましょう。',
+        'トレーニングは健康と自己成長の旅です。楽しんで進んでいきましょう。',
+        '自分自身を信じて、限界に挑戦しましょう。',
+        '継続こそが成功への秘訣です。諦めずに頑張りましょう！',
+    ],
+};
+
+
+
+// ランダムにメッセージを選ぶ関数
+function getRandomMessage(amount) {
+    if (amount >= 100) {
+        return getRandomMessageByRange('100+');
+    } else if (amount >= 50) {
+        return getRandomMessageByRange('50-99');
+    } else if (amount >= 10) {
+        return getRandomMessageByRange('10-49');
+    } else {
+        return getRandomMessageByRange('0-9');
+    }
+}
+
+// 範囲ごとにランダムにメッセージを選ぶ関数
+function getRandomMessageByRange(range) {
+    const messageList = messagesByRange[range] || messagesByRange.default;
+    const randomIndex = Math.floor(Math.random() * messageList.length);
+    return sym.PlainMessage.create(messageList[randomIndex]);
+}
+
+// createMessage関数を変更
+function createMessage(amount) {
+    return getRandomMessage(amount);
+}
+
+
+
+
+
+
+        // トランザクションを生成し、署名して送信する関数
+        function createAndSendTransaction() {
+            const recipientAddress = sym.Address.createFromRawAddress(document.getElementById('recipientAddress').value);
+            const amount = parseInt(document.getElementById('amount').value);
+
+            // アカウントを生成し、トランザクションを作成
+            const senderAccount = sym.Account.createFromPrivateKey(sender, sym.NetworkType.MAIN_NET);
+            const transferTransaction = sym.TransferTransaction.create(
+                sym.Deadline.create(epochAdjustment, 6),
+                recipientAddress, // トークンの宛先アドレス
+                [new sym.Mosaic(new sym.MosaicId('44FD959F9F2ECF4D'), sym.UInt64.fromUint(amount))], // 送信するモザイク
+                createMessage(amount), // 送信数量に応じたメッセージを生成
+                sym.NetworkType.MAIN_NET
+            ).setMaxFee(100);
+
+            // トランザクションに署名
+            const signedTx = senderAccount.sign(transferTransaction, generationHash);
+
+            // ノードへ署名されたトランザクションをアナウンス
+            new sym.TransactionHttp(NODE)
+                .announce(signedTx)
+                .subscribe(
+                    (x) => {
+                        console.log(x);
+                        alert("トランザクションが正常に送信されました！");
+                    },
+                    (err) => {
+                        console.error(err);
+                        alert("トランザクションの送信中にエラーが発生しました。");
+                    }
+                );
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+    <header>
+            <img src="XYM.png" alt="Fitness Logo">
+            <h1P</h1>
+        </header>
+        
+    <form id="transferForm">
+        <label for="recipientAddress">SYMBOL Address:</label>
+        <input type="text" id="recipientAddress" name="recipientAddress" required><br><br>
+
+        <label for="amount">筋トレ回数:</label>
+        <input type="number" id="amount" name="amount" required><br><br>
+
+        <!-- ボタンを追加してクリックでトランザクションを送信 -->
+        <button type="button" onclick="createAndSendTransaction()">Send Transaction</button>
+    </form>
+</body>
+</html>
